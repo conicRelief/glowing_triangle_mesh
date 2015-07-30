@@ -1,78 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>My first Three.js app</title>
-    <style>
-        body { margin: 0; }
-        canvas { width: 100%; height: 100% }
-    </style>
-</head>
-<body>
+<html>
+	<head>
+		<title>My first Three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="build/three.js"></script>
+		<script>
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
-<script src="build/three.js"></script>
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
 
-<script>
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+			var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			var cube = new THREE.Mesh( geometry, material );
+			scene.add( cube );
 
-    var renderer = new THREE.WebGLRenderer();
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
+			camera.position.z = 5;
 
-    var global_scalar = 0.2
+			var render = function () {
+				requestAnimationFrame( render );
+			
+				cube.rotation.x += 0.1;
+				// cube.rotation.y += 0.1;
 
-    var mtg = function(posx, posy, scalar)
-    {
-        // Think of this as a triangle object.
-        this.triangleGeometry = new THREE.Geometry();
-        var initial_displacement = new THREE.Vector3(posx, posy, 0);
-        this.v1 = new THREE.Vector3(0 + posx,0 + posy,0) ;
-        this.v2 = new THREE.Vector3(2+ posx,0+ posy,0) ;
-        this.v3 = new THREE.Vector3(1+ posx,Math.sqrt(3)+ posy,0);
-        this.material = new THREE.MeshBasicMaterial({color:0x00ff00});
+				renderer.render(scene, camera);
+			};
 
-        console.log(this.v1);
-        this.v1.multiplyScalar(scalar);
-        this.v2.multiplyScalar(scalar);
-        this.v3.multiplyScalar(scalar);
-
-        this.triangleGeometry.vertices.push(this.v1);
-        this.triangleGeometry.vertices.push(this.v2);
-        this.triangleGeometry.vertices.push(this.v3);
-
-        this.triangleGeometry.faces.push(new THREE.Face3(0,1,2));
-        this.mesh = new THREE.Mesh(this.triangleGeometry, this.material);
-    }
-
-
-    var o1 = new mtg(-4,2,global_scalar);
-    var o2 = new mtg(-2,2,global_scalar);
-
-    scene.add(o1.mesh);
-    scene.add(o2.mesh);
-    o2.material.color = 0xff0000;
-    camera.position.z = 5;
-
-    var render = function () {
-        requestAnimationFrame( render );
-        renderer.render(scene, camera);
-    };
-    render();
-</script>
-
-<script>
-
-
-    var triangleGeometry = new THREE.Geometry();
-
-    triangleGeometry.vertices.push(new THREE.Vector3( 1, 1, 0));
-    triangleGeometry.vertices.push(new THREE.Vector3( 3, 1, 0));
-    triangleGeometry.vertices.push(new THREE.Vector3( 3, 3, 0));
-    triangleGeometry.faces.push( new THREE.Face3(0 , 1 ,2));
-
-</script>
-
-
-</body>
+			render();
+		</script>
+	</body>
 </html>
