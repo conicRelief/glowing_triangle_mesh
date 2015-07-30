@@ -12,13 +12,35 @@
 
 <script src="build/three.js"></script>
 
+<!--Shaders and post processing filters-->
+<script src="js/shaders/ConvolutionShader.js"></script>
+<script src="js/shaders/CopyShader.js"></script>
+<script src="js/shaders/FXAAShader.js"></script>
+
+<script src="js/postprocessing/EffectComposer.js"></script>
+<script src="js/postprocessing/MaskPass.js"></script>
+<script src="js/postprocessing/RenderPass.js"></script>
+<script src="js/postprocessing/ShaderPass.js"></script>
+<script src="js/postprocessing/BloomPass.js"></script>
+
+
+
+
 <script>
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
-    var renderer = new THREE.WebGLRenderer();
+    var effectFXAA;
+
+
+
+    var renderer = new THREE.WebGLRenderer({antialias: false });
     renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.autoClear = false;
+
+
     document.body.appendChild( renderer.domElement );
+
 
     var global_scalar = 0.2
 
@@ -46,12 +68,16 @@
     }
 
 
+
+
     var o1 = new mtg(-4,2,global_scalar);
     var o2 = new mtg(-2,2,global_scalar);
+    var o3 = new mtg( 0,2,global_scalar);
+
 
     scene.add(o1.mesh);
     scene.add(o2.mesh);
-    o2.material.color = 0xff0000;
+    scene.add(o3.mesh);
     camera.position.z = 5;
 
     var render = function () {
@@ -61,17 +87,6 @@
     render();
 </script>
 
-<script>
-
-
-    var triangleGeometry = new THREE.Geometry();
-
-    triangleGeometry.vertices.push(new THREE.Vector3( 1, 1, 0));
-    triangleGeometry.vertices.push(new THREE.Vector3( 3, 1, 0));
-    triangleGeometry.vertices.push(new THREE.Vector3( 3, 3, 0));
-    triangleGeometry.faces.push( new THREE.Face3(0 , 1 ,2));
-
-</script>
 
 
 </body>
