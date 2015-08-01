@@ -22,6 +22,7 @@
 <script src="js/postprocessing/RenderPass.js"></script>
 <script src="js/postprocessing/ShaderPass.js"></script>
 <script src="js/postprocessing/BloomPass.js"></script>
+<script src='js/Perlin.js'></script>
 
 
 
@@ -44,15 +45,34 @@
 
     var global_scalar = 0.2
 
-    var mtg = function(posx, posy, scalar)
-    {
+    var mtg = function(posx, posy, scalar,uppy) {
         // Think of this as a triangle object.
         this.triangleGeometry = new THREE.Geometry();
         var initial_displacement = new THREE.Vector3(posx, posy, 0);
-        this.v1 = new THREE.Vector3(0 + posx,0 + posy,0) ;
-        this.v2 = new THREE.Vector3(2+ posx,0+ posy,0) ;
-        this.v3 = new THREE.Vector3(1+ posx,Math.sqrt(3)+ posy,0);
-        this.material = new THREE.MeshBasicMaterial({color:0x00ff00});
+        if(uppy == true) {
+            this.v1 = new THREE.Vector3(0 + posx, 0 + posy, 0);
+            this.v2 = new THREE.Vector3(2 + posx, 0 + posy, 0);
+            this.v3 = new THREE.Vector3(1 + posx, Math.sqrt(3) + posy, 0);
+        }
+        else
+        {
+//        this.v1 = new THREE.Vector3(posx, posy + Math.sqrt(3), 0);
+//        this.v2 = new THREE.Vector3(posx + 1, 0 + posy, 0);
+//        this.v3 = new THREE.Vector3(2 + posx, posy + Math.sqrt(3), 0);
+
+        this.v1 = new THREE.Vector3(posx, posy, 0);
+        this.v2 = new THREE.Vector3(posx + 1, 0 + posy-Math.sqrt(3), 0);
+        this.v3 = new THREE.Vector3(2 + posx, posy, 0);
+
+
+        }
+
+//
+//        this.v1 = new THREE.Vector3(0 + posx, Math.sqrt(3) + posy, 0);
+//                this.v2 = new THREE.Vector3(2 + posx, Math.sqrt(3) + posy, 0);
+//                this.v3 = new THREE.Vector3(1 + posx, 0 + posy, 0);
+//        }
+        this.material = new THREE.MeshBasicMaterial({color:0xFFD54F});
 
         console.log(this.v1);
         this.v1.multiplyScalar(scalar);
@@ -70,19 +90,105 @@
 
 
 
-    var o1 = new mtg(-4,2,global_scalar);
-    var o2 = new mtg(-2,2,global_scalar);
-    var o3 = new mtg( 0,2,global_scalar);
+//    var o1 = new mtg(-4,2,global_scalar);
+//    var o2 = new mtg(-2,2,global_scalar);
+//    var o3 = new mtg( 0,2,global_scalar);
+//
+//
+//    scene.add(o1.mesh);
+//    scene.add(o2.mesh);
+//    scene.add(o3.mesh);
+
+    var width_of_triangles;
+    var width_of_screen;
+
+    var number_of_x_slots = 40;
+    var number_of_y_slots = 50;
+
+    var chose_one = new THREE.MeshBasicMaterial();
+
+    for (var y = 0 ; y < number_of_y_slots; y++)
+    {
+        for (var x = 0 ; x < number_of_x_slots; x++)
+        {
+
+            var bias = y%2;
+            var other_bias = x%2;
+
+            var o1 = new mtg(2*x - 40 + bias, (y - 12) *Math.sqrt(3) , global_scalar, other_bias);
+            var o2 = new mtg(2*x - 40 + bias, (y - 12) *Math.sqrt(3) , global_scalar, !other_bias);
 
 
-    scene.add(o1.mesh);
-    scene.add(o2.mesh);
-    scene.add(o3.mesh);
+            if (x==5 && y==10)
+            {chose_one = o1;
+
+                o1.mesh = new THREE.Mesh(o1.triangleGeometry, new THREE.MeshBasicMaterial({color:0xff0000}));
+
+            }
+                scene.add(o1.mesh);
+                scene.add(o2.mesh);
+
+        }
+
+    }
+
+
+
     camera.position.z = 5;
+
+    var renderModel = new THREE.RenderPass( scene, camera );
+    var effectBloom = new THREE.BloomPass( 1.3 );
+    var effectCopy = new THREE.ShaderPass( THREE.CopyShader );
+
+    effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
+
+    var width = window.innerWidth || 2;
+    var height = window.innerHeight || 2;
+
+
+    effectFXAA.uniforms[ 'resolution' ].value.set( 1 / width, 1 / height );
+
+    effectCopy.renderToScreen = true;
+
+    composer = new THREE.EffectComposer( renderer );
+
+    composer.addPass( renderModel );
+    composer.addPass( effectFXAA );
+    composer.addPass( effectBloom );
+    composer.addPass( effectCopy );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     var render = function () {
         requestAnimationFrame( render );
-        renderer.render(scene, camera);
+//        renderer.render(scene, camera);
+        renderer.clear();
+        composer.render();
     };
     render();
 </script>
